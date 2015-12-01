@@ -1,7 +1,7 @@
 {
-    "name": "markdown-it-mdrules",
+    "name": "markdown-it-mdrenderer",
     "version": "0.0.0",
-    "description": "Renderer rules to render as markdown",
+    "description": "Renderer for markdown-it to render back as Markdown",
     "main": "index.js",
     "keywords": [
         "markdown-it"
@@ -15,12 +15,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/GitbookIO/markdown-it-mdrules.git"
+        "url": "https://github.com/GitbookIO/markdown-it-mdrenderer.git"
     },
     "author": "FriendCode Inc. <contact@gitbook.com>",
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/GitbookIO/markdown-it-mdrules/issues"
+        "url": "https://github.com/GitbookIO/markdown-it-mdrenderer/issues"
     },
     "contributors": [
         {

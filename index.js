@@ -25,7 +25,7 @@ function block(fn) {
         var needLf = false;
 
         if (token.block && token.nesting !== -1 && idx) {
-            result += '\n';
+            result += BL;
         }
 
         result += fn.apply(this, arguments);
@@ -52,7 +52,7 @@ function block(fn) {
             }
         }
 
-        result += needLf ? '\n' : '';
+        result += needLf ? BL : '';
         return result;
     }
 }
@@ -63,10 +63,12 @@ var fence = block(function(tokens, idx) {
 });
 
 
-module.exports = {
+var defaultRules = {
     code_inline: contentWithBothMarkup,
     code_block: fence,
     fence: fence,
+
+    hr: block(contentWithMarkup),
 
     paragraph_open: block(),
     paragraph_close: block(),
@@ -83,11 +85,19 @@ module.exports = {
     em_open: contentWithMarkup,
     em_close: contentWithMarkup,
 
+    link_open: function contentWithMarkup(tokens, idx) {
+        var token = tokens[idx];
+        var href = token.attrs[token.attrIndex('href')][1];
+
+        return '[]('+href+')';
+    },
+    link_close: contentWithoutMarkup,
+
     softbreak: function() {
-        return '\n';
+        return BL;
     },
     hardbreak: function() {
-        return '\n';
+        return BL;
     },
 
     image: block(function (tokens, idx, options, env, slf) {
@@ -106,3 +116,43 @@ module.exports = {
     html_block: contentWithoutMarkup,
     html_inline: contentWithoutMarkup
 };
+
+function Renderer() {
+    this.rules = defaultRules;
+}
+
+Renderer.prototype.renderInlineAsText = function (tokens, options, env) {
+  var result = '',
+      rules = this.rules;
+
+  for (var i = 0, len = tokens.length; i < len; i++) {
+    if (tokens[i].type === 'text') {
+      result += rules.text(tokens, i, options, env, this);
+    } else if (tokens[i].type === 'image') {
+      result += this.renderInlineAsText(tokens[i].children, options, env);
+    }
+  }
+
+  return result;
+};
+
+Renderer.prototype.render = function (tokens, options, env) {
+  var i, len, type,
+      result = '',
+      rules = this.rules;
+
+  for (i = 0, len = tokens.length; i < len; i++) {
+    type = tokens[i].type;
+
+    if (type === 'inline') {
+      result += tokens[i].content;
+    } else if (typeof rules[type] !== 'undefined') {
+      result += rules[tokens[i].type](tokens, i, options, env, this);
+    }
+  }
+
+  return result;
+};
+
+module.exports = Renderer;
+
