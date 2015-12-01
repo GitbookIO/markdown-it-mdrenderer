@@ -48,42 +48,11 @@ function testFile(filename, debug) {
 
 
 describe('markdown-it-mdrules', function() {
-    it('paragraphs', function() {
-        testFile('paragraphs.md');
-    })
+    var files = fs.readdirSync(path.resolve(__dirname, './fixtures'));
 
-
-    it('headings', function() {
-        testFile('headings.md');
-    });
-
-    it('strong', function() {
-        testFile('strong.md');
-    });
-
-    it('em', function() {
-        testFile('em.md');
-    });
-
-    it('html', function() {
-        testFile('html.md');
-    });
-
-    it('image', function() {
-        testFile('image.md');
-    });
-
-    describe('Code', function() {
-        it('inline', function() {
-            testFile('code_inline.md');
-        });
-
-        it('block', function() {
-            testFile('code_block.md');
-        });
-
-        it('fences', function() {
-            testFile('code_fences.md');
+    files.forEach(function(filename) {
+        it(filename, function() {
+            testFile(filename);
         });
     });
 });
