@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/GitbookIO/markdown-it-mdrenderer.png?branch=master)](https://travis-ci.org/GitbookIO/markdown-it-mdrenderer)
 [![NPM version](https://badge.fury.io/js/markdown-it-mdrenderer.svg)](http://badge.fury.io/js/markdown-it-mdrenderer)
 
-Renderer for [markdown-it](https://github.com/markdown-it/markdown-it to render back as Markdown.
+Renderer for [markdown-it](https://github.com/markdown-it/markdown-it) to render back as Markdown.
 
 ### Installation
 
