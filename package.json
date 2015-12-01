@@ -3,6 +3,9 @@
     "version": "0.0.0",
     "description": "Renderer rules to render as markdown",
     "main": "index.js",
+    "keywords": [
+        "markdown-it"
+    ],
     "devDependencies": {
         "mocha": "2.3.3",
         "markdown-it": "5.0.2"
