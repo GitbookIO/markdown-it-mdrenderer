@@ -8,7 +8,6 @@ var Renderer = require('markdown-it/lib/renderer');
 var mdRules = require('../');
 
 function renderToMarkdown(content) {
-    // Parse input
     var md = new MarkdownIt({
         html: true,
         langPrefix: 'lang-'
@@ -17,16 +16,27 @@ function renderToMarkdown(content) {
     return md.render(content);
 }
 
+function renderToHTML(content) {
+    var md = new MarkdownIt({
+        html: true,
+        langPrefix: 'lang-'
+    });
+    return md.render(content);
+}
+
 // Testing some markdown with the markdown renderer
 // is equivalent to:
-//   f(x) == f(f(x))
+//   md(x) == md(md(x))
 function testFile(filename) {
     filename = path.resolve(__dirname, './fixtures', filename);
     var content = fs.readFileSync(filename, 'utf-8');
-
     var md = renderToMarkdown(content);
 
+    // Test md(x) == md(md(x))
     assert(md, renderToMarkdown(md));
+
+    // Test html(x) == html(md(x))
+    assert(renderToHTML(content), renderToHTML(md));
 }
 
 
@@ -40,4 +50,17 @@ describe('markdown-it-mdrules', function() {
         testFile('headings.md');
     });
 
+    describe('Code', function() {
+        it('inline', function() {
+            testFile('code_inline.md');
+        });
+
+        it('block', function() {
+            testFile('code_block.md');
+        });
+
+        it('fences', function() {
+            testFile('code_fences.md');
+        });
+    });
 });
