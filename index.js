@@ -80,6 +80,20 @@ var fence = block(function(tokens, idx) {
 
 var emptyBlock = block(empty);
 
+function listOpen(tokens, idx, options, env, slf) {
+    var tok = tokens[idx];
+    slf._olIndex = 1;
+
+    if (tok.level > 0) return BL;
+    else return emptyBlock.apply(this, arguments);
+}
+
+function listClose(tokens, idx) {
+    var tok = tokens[idx];
+
+    if (tok.level > 0) return '';
+    else return emptyBlock.apply(this, arguments);
+}
 
 var defaultRules = {
     inline: contentWithoutMarkup,
@@ -110,21 +124,18 @@ var defaultRules = {
 
     ////////  Lists
     ////////
-    bullet_list_open: function(tokens, idx) {
+    bullet_list_open: listOpen,
+    bullet_list_close: listClose,
+    ordered_list_open: listOpen,
+    ordered_list_close: listClose,
+    list_item_open: function(tokens, idx, options, env, slf) {
         var tok = tokens[idx];
-
-        if (tok.level > 0) return BL;
-        else return emptyBlock.apply(this, arguments);
-    },
-    bullet_list_close: function(tokens, idx) {
-        var tok = tokens[idx];
-
-        if (tok.level > 0) return '';
-        else return emptyBlock.apply(this, arguments);
-    },
-    list_item_open: function(tokens, idx) {
-        var tok = tokens[idx];
-        return whitespaces(tok.level) + tok.markup + ' ' + tok.content;
+        var markup = tok.markup;
+        if (markup == '.') {
+            markup = slf._olIndex+'.';
+            slf._olIndex = slf._olIndex + 1;
+        }
+        return whitespaces(tok.level - 1, '  ') + markup + ' ' + tok.content;
     },
     list_item_close:function(tokens, idx) {
         var tok = tokens[idx];

@@ -34,6 +34,7 @@ function testFile(filename) {
     var content = fs.readFileSync(filename, 'utf-8');
     var md = renderToMarkdown(content);
     //console.log(md);
+    //console.log(renderToMarkdown(md))
 
     // Test md(x) == md(md(x))
     assert.deepEqual(md, renderToMarkdown(md));
@@ -48,7 +49,7 @@ function testFile(filename) {
 
 describe('markdown-it-mdrules', function() {
     var files = fs.readdirSync(path.resolve(__dirname, './fixtures'));
-    //files = ['list_ul.md'];
+   // files = ['list_ol.md'];
     files.forEach(function(filename) {
         it(filename, function() {
             testFile(filename);
