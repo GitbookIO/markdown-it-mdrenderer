@@ -1,6 +1,16 @@
 
 var BL = '\n';
 
+function whitespaces(n, char) {
+    return (new Array(n + 1)).join(char || ' ');
+}
+
+function constant(s) {
+    return function() {
+        return s;
+    };
+}
+
 function contentWithMarkup(tokens, idx) {
     var tok = tokens[idx];
     return tok.markup+tok.content;
@@ -16,6 +26,10 @@ function contentWithoutMarkup(tokens, idx) {
     return tok.content;
 }
 
+function empty(tokens, idx) {
+    return '';
+}
+
 function block(fn) {
     fn = fn || contentWithMarkup;
 
@@ -23,6 +37,8 @@ function block(fn) {
         var result = '';
         var token = tokens[idx];
         var needLf = false;
+
+        if (token.hidden) return '';
 
         if (token.block && token.nesting !== -1 && idx) {
             result += BL;
@@ -62,8 +78,12 @@ var fence = block(function(tokens, idx) {
     return '```' + tok.info + BL + tok.content + '```';
 });
 
+var emptyBlock = block(empty);
+
 
 var defaultRules = {
+    inline: contentWithoutMarkup,
+
     code_inline: contentWithBothMarkup,
     code_block: fence,
     fence: fence,
@@ -73,33 +93,48 @@ var defaultRules = {
     paragraph_open: block(),
     paragraph_close: block(),
 
+    ////////  Headings
+    ////////
     heading_open: block(function(tokens, idx) {
         var token = tokens[idx];
         return token.markup+' '+token.content;
     }),
     heading_close: block(contentWithoutMarkup),
 
+    //////// Inline formating
     strong_open: contentWithMarkup,
     strong_close: contentWithMarkup,
 
     em_open: contentWithMarkup,
     em_close: contentWithMarkup,
 
-    link_open: function contentWithMarkup(tokens, idx) {
-        var token = tokens[idx];
-        var href = token.attrs[token.attrIndex('href')][1];
+    ////////  Lists
+    ////////
+    bullet_list_open: function(tokens, idx) {
+        var tok = tokens[idx];
 
-        return '[]('+href+')';
+        if (tok.level > 0) return BL;
+        else return emptyBlock.apply(this, arguments);
     },
-    link_close: contentWithoutMarkup,
+    bullet_list_close: function(tokens, idx) {
+        var tok = tokens[idx];
 
-    softbreak: function() {
-        return BL;
+        if (tok.level > 0) return '';
+        else return emptyBlock.apply(this, arguments);
     },
-    hardbreak: function() {
-        return BL;
+    list_item_open: function(tokens, idx) {
+        var tok = tokens[idx];
+        return whitespaces(tok.level) + tok.markup + ' ' + tok.content;
+    },
+    list_item_close:function(tokens, idx) {
+        var tok = tokens[idx];
+
+        if (tok.level > 3) return '';
+        else return BL;
     },
 
+    ////////  Block images
+    ////////
     image: block(function (tokens, idx, options, env, slf) {
         var token = tokens[idx];
 
@@ -114,7 +149,14 @@ var defaultRules = {
     text: contentWithMarkup,
 
     html_block: contentWithoutMarkup,
-    html_inline: contentWithoutMarkup
+    html_inline: contentWithoutMarkup,
+
+    softbreak: function() {
+        return BL;
+    },
+    hardbreak: function() {
+        return BL;
+    }
 };
 
 function Renderer() {
@@ -144,10 +186,10 @@ Renderer.prototype.render = function (tokens, options, env) {
   for (i = 0, len = tokens.length; i < len; i++) {
     type = tokens[i].type;
 
-    if (type === 'inline') {
-      result += tokens[i].content;
-    } else if (typeof rules[type] !== 'undefined') {
-      result += rules[tokens[i].type](tokens, i, options, env, this);
+    if (typeof rules[type] !== 'undefined') {
+        var s = rules[tokens[i].type](tokens, i, options, env, this);
+        //console.log(whitespaces(tokens[i].level,'--'), type,  JSON.stringify(s));
+        result += s;
     }
   }
 
