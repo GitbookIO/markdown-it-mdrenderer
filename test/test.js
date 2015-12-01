@@ -50,6 +50,14 @@ describe('markdown-it-mdrules', function() {
         testFile('headings.md');
     });
 
+    it('strong', function() {
+        testFile('strong.md');
+    });
+
+    it('em', function() {
+        testFile('em.md');
+    });
+
     describe('Code', function() {
         it('inline', function() {
             testFile('code_inline.md');
