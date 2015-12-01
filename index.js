@@ -28,7 +28,7 @@ function block(fn) {
             result += '\n';
         }
 
-        result += fn(tokens, idx);
+        result += fn.apply(this, arguments);
 
         // Check if we need to add a newline after this tag
         if (token.block) {
@@ -90,5 +90,19 @@ module.exports = {
         return '\n';
     },
 
+    image: block(function (tokens, idx, options, env, slf) {
+        var token = tokens[idx];
+
+        var alt = token.attrs[token.attrIndex('alt')][1] =
+        slf.renderInlineAsText(token.children, options, env);
+
+        var src = token.attrs[token.attrIndex('src')][1];
+
+        return '!['+alt+']('+src+')';
+    }),
+
     text: contentWithMarkup,
+
+    html_block: contentWithoutMarkup,
+    html_inline: contentWithoutMarkup
 };

@@ -27,16 +27,23 @@ function renderToHTML(content) {
 // Testing some markdown with the markdown renderer
 // is equivalent to:
 //   md(x) == md(md(x))
-function testFile(filename) {
+function testFile(filename, debug) {
     filename = path.resolve(__dirname, './fixtures', filename);
     var content = fs.readFileSync(filename, 'utf-8');
     var md = renderToMarkdown(content);
 
+    if (debug) console.log(md);
+
     // Test md(x) == md(md(x))
-    assert(md, renderToMarkdown(md));
+    assert.deepEqual(md, renderToMarkdown(md));
 
     // Test html(x) == html(md(x))
-    assert(renderToHTML(content), renderToHTML(md));
+    var originalHtml = renderToHTML(content);
+    var resultHtml = renderToHTML(md);
+
+    if (debug) console.log(originalHtml, resultHtml);
+
+    assert.deepEqual(originalHtml, resultHtml);
 }
 
 
@@ -56,6 +63,14 @@ describe('markdown-it-mdrules', function() {
 
     it('em', function() {
         testFile('em.md');
+    });
+
+    it('html', function() {
+        testFile('html.md');
+    });
+
+    it('image', function() {
+        testFile('image.md');
     });
 
     describe('Code', function() {
